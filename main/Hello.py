@@ -5,4 +5,6 @@ Created on 2015/05/09
 '''
 print("hogehoge-obasan-ojisan-hogehoge")
 
+print("(・〜・)")
+
 print("niconico obasan konnichiwa sayounara")
