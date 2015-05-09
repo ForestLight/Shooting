@@ -5,4 +5,4 @@ Created on 2015/05/09
 '''
 print("hogehoge-obasan-ojisan-hogehoge")
 
-printf("niconico")
+print("niconico obasan konnichiwa sayounara")
