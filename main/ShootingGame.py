@@ -3,14 +3,28 @@ Created on 2015/05/16
 
 @author: admin
 '''
+from kivy.config import Config
+Config.set('graphics', 'width', '500')
+Config.set('graphics', 'height', '700')
+
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.image import Image
 from kivy.clock import Clock
+from random import randint
 from kivy.properties import ObjectProperty
-from random import Random, randint
+import datetime
 
-class Enemy(Widget):
-    r = Random()
+class Timer(Widget):
+    time = datetime.datetime.today()
+    start=datetime.datetime.today() 
+    def update_time(self):
+        end = datetime.datetime.today()
+        self.time = end-self.start
+        
+        
+
+class Enemy(Image):    
     def init_set(self,pos,size):
         self.pos = pos
         self.size = size
@@ -19,7 +33,6 @@ class Enemy(Widget):
     #move randomly
     def move_random(self):
             self.pos = (self.pos[0]+randint(-5,5),self.pos[1]+randint(-5,5))
-            print(self.pos)
             
 #敵はリストで一括管理
 class EnemysList():
@@ -29,6 +42,7 @@ class EnemysList():
         pass
     #敵をつくる，ポジションと大きさを指定
     def make_enemy(self,game,enemy_pos,enemy_size):
+#         new_enemy = Enemy((300,300), (30,30))
         new_enemy = Enemy()
         new_enemy.init_set(enemy_pos, enemy_size)
         game.add_widget(new_enemy)
@@ -36,17 +50,27 @@ class EnemysList():
     #敵の動きを更新する，update中で呼ばれる(？)
     def update_enemys(self,game):
         for i in self.enemys:
-            i.pos = (i.pos[0]+randint(-5,5),i.pos[1]+randint(-5,5))
- 
+            i.move_random()
+            
 class ShootingGame(Widget):
-    enemy_list = EnemysList()
     #最初にゲームに追加される
-    def add_obj(self):        
-        pass
+    timer = ObjectProperty(None)
+#     def __init__(self,**kwargs):
+#         super(ShootingGame,**kwargs)
+#         self.enemy_list = EnemysList()
+#         self.enemy_list.make_enemy(self, (300,300), (30,30))
+    
+    def add_obj(self): 
+#      self.timer = Timer()
+        self.enemy_list = EnemysList()
+        self.enemy_list.make_enemy(self, (300,300), (30,30))
+        self.enemy_list.make_enemy(self, (320,280), (30,30))
+ 
     #時間経過と共に更新される    
     def update(self,dt):
-        pass
-#      self.enemy_list.update_enemys(self)
+        self.timer.update_time()
+        print(self.timer.time)
+        self.enemy_list.update_enemys(self)
         
         
 class ShootingGameApp(App):
