@@ -23,18 +23,21 @@ ball_speed = 3 #ボールの基本速度
 ball_count = 3 #ボールの跳ね返り回数
 max_ball = 20 #画面に出せるボールの上限
 
+    
+
 class Timer(Widget):
     timer = ObjectProperty(None)
     start=time.time()
     def update_time(self):
         self.timer = int(time.time() - self.start);
-
+        print(self.timer)
+        
 class Enemy(Image):
     def init_set(self,pos,size):
         self.pos = pos
         self.size = size
-    def remove(self):
-            pass
+    def remove(self,game):
+        game.remove_widget(self)
     #move randomly
     def move_random(self):
             self.pos = (self.pos[0]+randint(-5,5),self.pos[1]+randint(-5,5))
@@ -42,9 +45,16 @@ class Enemy(Image):
 #敵はリストで一括管理
 class EnemysList():
     enemys = []
-    #敵を消す(弾が当たった時とかに)
+    def __init__(self,game):
+        self.game = game
+    #敵を消す(弾が当たった時とかに),引数はindex gameの順番
     def remove(self,enemy_id):
-        pass
+        if len(self.enemys) == 0:
+            return
+#         self.enemys[enemy_id].remove(game)
+        self.game.remove_widget(self.enemys[enemy_id])
+        self.enemys.remove(self.enemys[enemy_id])
+        
     #敵をつくる，ポジションと大きさを指定
     def make_enemy(self,game,enemy_pos,enemy_size):
         new_enemy = Enemy()
@@ -134,10 +144,9 @@ class ShootingGame(Widget):
     #最初にゲームに追加される
     mouse_position = (NumericProperty(),NumericProperty())
     mouse_position = Window.mouse_pos
-    timer = ObjectProperty(None)
+    timer = Timer()
     def add_obj(self):
-        self.timer = Timer()
-        self.enemy_list = EnemysList()
+        self.enemy_list = EnemysList(self)
         self.enemy_list.make_enemy(self, (300,300), (30,30))
         self.enemy_list.make_enemy(self, (320,280), (30,30))
 
@@ -153,11 +162,12 @@ class ShootingGame(Widget):
         self.timer.update_time()
         self.enemy_list.update_enemys(self)
         self.ball_list.update_balls(self.rocket,self.enemy_list)
-
         if(self.mouse_position != Window.mouse_pos): #マウスクリックでボールを発射
             self.mouse_position = Window.mouse_pos
             self.ball_list.make_balls(self,self.rocket,self.enemy_list,Window.mouse_pos)
-
+                                      
+        
+        
 class ShootingGameApp(App):
     def build(self):
         game = ShootingGame()
