@@ -1,20 +1,31 @@
 #: kivy 1.9.1
-	
-	
+
+
 <Timer>:
 	Label:
 		font_size: 30
 		pos:(root.width-80,root.height+520)
-		text:"Timer:"+str(root.timer)
+		text:'Timer:'+str(root.timer)
+
 <Enemy>:
 	size:self.size
 	pos:self.pos
-	source:"data/ufo.png"
+	source:'/Users/takedaseiji/Desktop/python/ufo.png'
+
+<Rocket>:
+	size:self.size
+	pos:self.pos
+	source:'/Users/takedaseiji/Desktop/python/rocket.png'
+
+<Ball>:
+	size:self.size
+	pos:self.pos
+	source:'/Users/takedaseiji/Desktop/python/ball.png'
 
 <ShootingGame>:
 	timer: timer_val
 	Timer:
 		id:timer_val
-		text:"Timer:"+str(root.timer.timer)
+		text:'Timer:'+str(root.timer.timer)
 	Button:
-		text:"hello"     
+		text:'hello'
