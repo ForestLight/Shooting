@@ -12,18 +12,15 @@ from kivy.uix.widget import Widget
 from kivy.uix.image import Image
 from kivy.clock import Clock
 from random import randint
-from kivy.properties import ObjectProperty
-import datetime
+from kivy.properties import ObjectProperty,NumericProperty
+import time
 
 class Timer(Widget):
-    time = datetime.datetime.today()
-    start=datetime.datetime.today() 
+    timer = ObjectProperty(None)
+    start=time.time() 
     def update_time(self):
-        end = datetime.datetime.today()
-        self.time = end-self.start
+        self.timer = int(time.time() - self.start);
         
-        
-
 class Enemy(Image):    
     def init_set(self,pos,size):
         self.pos = pos
@@ -42,7 +39,6 @@ class EnemysList():
         pass
     #敵をつくる，ポジションと大きさを指定
     def make_enemy(self,game,enemy_pos,enemy_size):
-#         new_enemy = Enemy((300,300), (30,30))
         new_enemy = Enemy()
         new_enemy.init_set(enemy_pos, enemy_size)
         game.add_widget(new_enemy)
@@ -55,11 +51,6 @@ class EnemysList():
 class ShootingGame(Widget):
     #最初にゲームに追加される
     timer = ObjectProperty(None)
-#     def __init__(self,**kwargs):
-#         super(ShootingGame,**kwargs)
-#         self.enemy_list = EnemysList()
-#         self.enemy_list.make_enemy(self, (300,300), (30,30))
-    
     def add_obj(self): 
 #      self.timer = Timer()
         self.enemy_list = EnemysList()
@@ -69,7 +60,6 @@ class ShootingGame(Widget):
     #時間経過と共に更新される    
     def update(self,dt):
         self.timer.update_time()
-        print(self.timer.time)
         self.enemy_list.update_enemys(self)
         
         
