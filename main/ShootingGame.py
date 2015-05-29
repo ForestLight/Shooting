@@ -23,6 +23,9 @@ ball_speed = 3 #ボールの基本速度
 ball_count = 3 #ボールの跳ね返り回数
 max_ball = 200 #画面に出せるボールの上限
 
+#速さを表す定数
+machineVelocity = 5.0
+
     
 
 class Timer(Widget):
@@ -68,8 +71,6 @@ class EnemysList():
 
 #操作する機体の定義
 class Rocket(Image):
-    #速さを表す定数
-    machineVelocity = 0.5
     #初期位置
     def init_set(self,game):
         self.pos = Window.center #初期位置はウィンドウの中心
@@ -79,7 +80,7 @@ class Rocket(Image):
     def goTop(self):
         #最小単位を指定してそれ
         self.pos[1] = (machineVelocity + self.pos[1])
-    def goUnder(self):
+    def goDown(self):
         #最小単位を指定してそれ
         self.pos[1] = (-machineVelocity + self.pos[1])
     def goLeft(self):
@@ -175,12 +176,32 @@ class ShootingGame(Widget):
         #ボールリスト
         self.ball_list = BallList()
 
+    def __init__(self, **kwargs):
+        super(ShootingGame, self).__init__(**kwargs)
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        print("コラコラコラコラ～ッ！(`o´)")
+        if keycode[1] == 'w':
+            self.rocket.goTop()
+        if keycode[1] == 's':
+            self.rocket.goDown()
+        if keycode[1] == 'a':
+            self.rocket.goLeft()
+        if keycode[1] == 'd':
+            self.rocket.goRight()
+        return True
+
     #時間経過と共に更新される
     def update(self,dt):
         self.timer.update_time()
         self.enemy_list.update_enemys(self)
         self.ball_list.update_balls(self.rocket,self.enemy_list)
-        self.rocket.move(math.pi/4,0.5)
         if(self.mouse_position != Window.mouse_pos): #マウスクリックでボールを発射
             self.mouse_position = Window.mouse_pos
             self.ball_list.make_balls(self,self.rocket,self.enemy_list,Window.mouse_pos)
