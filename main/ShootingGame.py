@@ -21,7 +21,7 @@ import math
 
 ball_speed = 3 #ボールの基本速度
 ball_count = 3 #ボールの跳ね返り回数
-max_ball = 20 #画面に出せるボールの上限
+max_ball = 200 #画面に出せるボールの上限
 
     
 
@@ -68,12 +68,29 @@ class EnemysList():
 
 #操作する機体の定義
 class Rocket(Image):
+    #速さを表す定数
+    machineVelocity = 0.5
     #初期位置
     def init_set(self,game):
         self.pos = Window.center #初期位置はウィンドウの中心
     #敵もしくは弾に当たると死ぬ
     def remove(self):
         pass
+    def goTop(self):
+        #最小単位を指定してそれ
+        self.pos[1] = (machineVelocity + self.pos[1])
+    def goUnder(self):
+        #最小単位を指定してそれ
+        self.pos[1] = (-machineVelocity + self.pos[1])
+    def goLeft(self):
+        self.pos[0] = self.pos[0] - machineVelocity
+    def goRight(self):
+        self.pos[0] = self.pos[0] + machineVelocity
+    def move(self,theta,velocity):
+        #角度thetaを当てた時の移動
+        self.pos[0] = self.pos[0] + velocity * math.cos(theta)
+        self.pos[1] = self.pos[1] + velocity * math.sin(theta)
+
 
 class Ball(Image):
     #ball.velocity を用いるためのvelocityの定義
@@ -153,6 +170,7 @@ class ShootingGame(Widget):
         #ロケットを定義しないとボールの発射位置を定義できないので仮においておく
         self.rocket = Rocket()
         self.rocket.init_set(self)
+        self.add_widget(self.rocket)
 
         #ボールリスト
         self.ball_list = BallList()
@@ -162,6 +180,7 @@ class ShootingGame(Widget):
         self.timer.update_time()
         self.enemy_list.update_enemys(self)
         self.ball_list.update_balls(self.rocket,self.enemy_list)
+        self.rocket.move(math.pi/4,0.5)
         if(self.mouse_position != Window.mouse_pos): #マウスクリックでボールを発射
             self.mouse_position = Window.mouse_pos
             self.ball_list.make_balls(self,self.rocket,self.enemy_list,Window.mouse_pos)
