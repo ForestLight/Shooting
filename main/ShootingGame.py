@@ -202,11 +202,11 @@ class ShootingGame(Widget):
     def on_touch_move(self, touch):
         print("move!!!",touch)
         self.ball_list.make_balls(self, self.rocket, self.enemy_list, [touch.x,touch.y])
-        return Widget.on_touch_down(self, touch)
+        return Widget.on_touch_move(self, touch)
         
     def on_touch_up(self, touch):
         print("Released!!",touch)
-        return Widget.on_touch_down(self, touch)
+        return Widget.on_touch_up(self, touch)
       
     #時間経過と共に更新される
     def update(self,dt):
