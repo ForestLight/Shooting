@@ -33,7 +33,6 @@ class Timer(Widget):
     start=time.time()
     def update_time(self):
         self.timer = int(time.time() - self.start);
-        print(self.timer)
         
 class Enemy(Image):
     def init_set(self,pos,size):
@@ -196,17 +195,28 @@ class ShootingGame(Widget):
         if keycode[1] == 'd':
             self.rocket.goRight()
         return True
-
+    
+    def on_touch_down(self, touch,after = False):
+        print(touch)
+        return Widget.on_touch_down(self, touch)
+    def on_touch_move(self, touch):
+        print("move!!!",touch)
+        self.ball_list.make_balls(self, self.rocket, self.enemy_list, [touch.x,touch.y])
+        return Widget.on_touch_down(self, touch)
+        
+    def on_touch_up(self, touch):
+        print("Released!!",touch)
+        return Widget.on_touch_down(self, touch)
+      
     #時間経過と共に更新される
     def update(self,dt):
         self.timer.update_time()
         self.enemy_list.update_enemys(self)
         self.ball_list.update_balls(self.rocket,self.enemy_list)
-        if(self.mouse_position != Window.mouse_pos): #マウスクリックでボールを発射
-            self.mouse_position = Window.mouse_pos
-            self.ball_list.make_balls(self,self.rocket,self.enemy_list,Window.mouse_pos)
-                                      
-        
+#         if(self.mouse_position != Window.mouse_pos): #マウスクリックでボールを発射
+#             self.mouse_position = Window.mouse_pos
+#             self.ball_list.make_balls(self,self.rocket,self.enemy_list,Window.mouse_pos)
+#         
         
 class ShootingGameApp(App):
     def build(self):
