@@ -32,7 +32,32 @@ class Timer(Widget):
     timer = ObjectProperty(None)
     start=time.time()
     def update_time(self):
-        self.timer = int(time.time() - self.start);
+        self.now = time.time() - self.start
+        self.timer = int(self.now);
+
+#fps計測用のクラス timerを継承
+class Fps():
+    def __init__(self,timer):
+        self.timer = timer
+        self.fps_after = 0
+        self.fps_before = 0
+        self.queue = []
+    
+    def update(self):
+        self.fps_before = self.fps_after
+        self.fps_after = self.timer.now
+        self.update_queue(1/(self.fps_after - self.fps_before))
+    def update_queue(self,new):
+        self.queue = [new] + self.queue
+        if len(self.queue) > 60:
+            self.queue.remove(self.queue[60])
+    #queueの中の平均を取る
+    def get_current_fps(self):
+        sum = 0
+        for i in self.queue:
+            sum += i
+        return round(sum/len(self.queue),1)
+        
         
 class Enemy(Image):
     def init_set(self,pos,size):
@@ -159,21 +184,23 @@ class BallList():
 
 class ShootingGame(Widget):
     #最初にゲームに追加される
-    mouse_position = (NumericProperty(),NumericProperty())
-    mouse_position = Window.mouse_pos
+#     mouse_position = (NumericProperty(),NumericProperty())
+#     mouse_position = Window.mouse_pos
     timer = Timer()
+    fps = ObjectProperty(None)
+    
     def add_obj(self):
         self.enemy_list = EnemysList(self)
         self.enemy_list.make_enemy(self, (300,300), (30,30))
         self.enemy_list.make_enemy(self, (320,280), (30,30))
-
         #ロケットを定義しないとボールの発射位置を定義できないので仮においておく
         self.rocket = Rocket()
         self.rocket.init_set(self)
         self.add_widget(self.rocket)
-
         #ボールリスト
         self.ball_list = BallList()
+        #fps計測用インスタンス
+        self.fps_ins = Fps(self.timer)
 
     def __init__(self, **kwargs):
         super(ShootingGame, self).__init__(**kwargs)
@@ -196,9 +223,11 @@ class ShootingGame(Widget):
             self.rocket.goRight()
         return True
     
-    def on_touch_down(self, touch,after = False):
+    def on_touch_down(self, touch,after = True):
+        super(ShootingGame, self).on_touch_down(touch)
         print(touch)
-        return Widget.on_touch_down(self, touch)
+        return False
+#         return Widget.on_touch_down(self, touch)
     def on_touch_move(self, touch):
         print("move!!!",touch)
         self.ball_list.make_balls(self, self.rocket, self.enemy_list, [touch.x,touch.y])
@@ -213,6 +242,9 @@ class ShootingGame(Widget):
         self.timer.update_time()
         self.enemy_list.update_enemys(self)
         self.ball_list.update_balls(self.rocket,self.enemy_list)
+        #fps計測用
+        self.fps_ins.update()
+        self.fps = self.fps_ins.get_current_fps()
 #         if(self.mouse_position != Window.mouse_pos): #マウスクリックでボールを発射
 #             self.mouse_position = Window.mouse_pos
 #             self.ball_list.make_balls(self,self.rocket,self.enemy_list,Window.mouse_pos)
