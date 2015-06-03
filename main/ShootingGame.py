@@ -19,14 +19,14 @@ from kivy.properties import ObjectProperty,NumericProperty,ReferenceListProperty
 import time
 import math
 
-ball_speed = 3 #ボールの基本速度
-ball_count = 3 #ボールの跳ね返り回数
-max_ball = 200 #画面に出せるボールの上限
+ball_speed = 7 #ボールの基本速度
+ball_count = 7 #ボールの跳ね返り回数
+max_ball = 7 #画面に出せるボールの上限
 
 #速さを表す定数
 machineVelocity = 5.0
 
-    
+
 
 class Timer(Widget):
     timer = ObjectProperty(None)
@@ -42,7 +42,7 @@ class Fps():
         self.fps_after = 0
         self.fps_before = 0
         self.queue = []
-    
+
     def update(self):
         self.fps_before = self.fps_after
         self.fps_after = self.timer.now
@@ -57,8 +57,8 @@ class Fps():
         for i in self.queue:
             sum += i
         return round(sum/len(self.queue),1)
-        
-        
+
+
 class Enemy(Image):
     def init_set(self,pos,size):
         self.pos = pos
@@ -81,7 +81,7 @@ class EnemysList():
 #         self.enemys[enemy_id].remove(game)
         self.game.remove_widget(self.enemys[enemy_id])
         self.enemys.remove(self.enemys[enemy_id])
-        
+
     #敵をつくる，ポジションと大きさを指定
     def make_enemy(self,game,enemy_pos,enemy_size):
         new_enemy = Enemy()
@@ -129,9 +129,7 @@ class Ball(Image):
         self.game = game
         self.rocket = rocket
         self.enemys = enemyList
-        self.pos = rocket.pos #発射時の機体の位置はロケットの中心
-        if self.pos[0] == position[0] and self.pos[1] == position[1]: #ロケットの位置と射出位置が重なるときはずらす(タッチ検出部分でやるべき？)
-            self.pos[1] += 5
+        self.pos = (rocket.pos[0], rocket.pos[1] + rocket.size[1]/2 + 2) #発射時の機体の位置はロケットの先端より少し上####
         vec = math.sqrt((position[0] - self.pos[0])  * (position[0] - self.pos[0])  + (position[1] - self.pos[1]) * (position[1] - self.pos[1]))
         ball_speedx = ball_speed * (position[0] - self.pos[0]) / vec
         ball_speedy = ball_speed * (position[1] - self.pos[1]) / vec
@@ -171,16 +169,23 @@ class BallList():
     #弾を発射，進む方向と発射位置を指定
     def make_balls(self,game,rocket,enemy_list,ball_pos):
         if len(self.balls) < max_ball: #ボールの数を制限する
-            new_ball = Ball()
-            new_ball.init_set(game,rocket,enemy_list,ball_pos)
-            game.add_widget(new_ball)
-            self.balls.append(new_ball)
+            if ball_pos[1] > rocket.pos[1] + rocket.size[1]/2 + 2: #先端より上をクリックした時のみ弾を生成する #####
+                new_ball = Ball()
+                new_ball.init_set(game,rocket,enemy_list,ball_pos)
+                game.add_widget(new_ball)
+                self.balls.append(new_ball)
+            else: pass #下側にはボールを発射しない(要検討)
         else: pass #作らない
     def update_balls(self,rocket,enemy_list):
         for i in self.balls:
             i.move(rocket,enemy_list)
             if i.count == 0 :
                 self.remove(self.balls.index(i))
+            else: #ここの処理に時間かかりまくってる気がする(敵を倒す)
+                for j in enemy_list.enemys:
+                    if i.collide_widget(j):
+                        self.remove(self.balls.index(i))
+                        enemy_list.remove(enemy_list.enemys.index(j))
 
 class ShootingGame(Widget):
     #最初にゲームに追加される
@@ -188,7 +193,7 @@ class ShootingGame(Widget):
 #     mouse_position = Window.mouse_pos
     timer = Timer()
     fps = ObjectProperty(None)
-    
+
     def add_obj(self):
         self.enemy_list = EnemysList(self)
         self.enemy_list.make_enemy(self, (300,300), (30,30))
@@ -222,7 +227,7 @@ class ShootingGame(Widget):
         if keycode[1] == 'd':
             self.rocket.goRight()
         return True
-    
+
     def on_touch_down(self, touch,after = True):
         super(ShootingGame, self).on_touch_down(touch)
         print(touch)
@@ -232,11 +237,11 @@ class ShootingGame(Widget):
         print("move!!!",touch)
         self.ball_list.make_balls(self, self.rocket, self.enemy_list, [touch.x,touch.y])
         return Widget.on_touch_move(self, touch)
-        
+
     def on_touch_up(self, touch):
         print("Released!!",touch)
         return Widget.on_touch_up(self, touch)
-      
+
     #時間経過と共に更新される
     def update(self,dt):
         self.timer.update_time()
@@ -248,8 +253,8 @@ class ShootingGame(Widget):
 #         if(self.mouse_position != Window.mouse_pos): #マウスクリックでボールを発射
 #             self.mouse_position = Window.mouse_pos
 #             self.ball_list.make_balls(self,self.rocket,self.enemy_list,Window.mouse_pos)
-#         
-        
+#
+
 class ShootingGameApp(App):
     def build(self):
         game = ShootingGame()

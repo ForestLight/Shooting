@@ -17,9 +17,12 @@
 	source:'data/rocket.png'
 
 <Ball>:
-	size:self.size
-	pos:self.pos
-	source:'data/ball.png'
+	size: 10, 10
+	canvas:
+		Ellipse:
+		pos:self.pos
+		size:self.size
+		source:'data/ball.png'
 
 <ShootingGame>:
 	timer: timer_val
@@ -27,8 +30,8 @@
 	Timer:
 		id:timer_val
 		text:'Timer:'+str(root.timer.timer)
-	
+
 	Label:
 		id:fps_val
 		pos:(0,0)
-		text:'fps:'+str(root.fps)		
+		text:'fps:'+str(root.fps)
