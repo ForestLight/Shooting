@@ -124,27 +124,27 @@ class Rocket(Image):
         #-1であったときに離しても変化しないようにする 1であったときのみ0にする
         if self.machineVector[1] == 1.0:
             self.machineVector[1] = 0.0
-        self.setNorm()
+            self.setNorm()
     def stopDown(self):
         if self.machineVector[1] == -1.0:
             self.machineVector[1] = 0.0
-        self.setNorm()
+            self.setNorm()
     def stopLeft(self):
         if self.machineVector[0] == -1.0:
             self.machineVector[0] = 0.0
-        self.setNorm()
+            self.setNorm()
     def stopRight(self):
         if self.machineVector[0] == 1.0:
             self.machineVector[0] = 0.0
-        self.setNorm()
+            self.setNorm()
     def stopDeceleration(self):
         self.decelerationNum = 1.0
     def setNorm(self):
-        #vectorが全部１or-1 よってどれかに0がはいっているなら1 そうでないなら1/sqrt(2)
+        #vectorが全部１or-1 よってどれかに0がはいっているなら1 そうでないならsqrt(2)
         if self.machineVector[0] == 0.0 or self.machineVector[1] == 0.0:
-            norm = 1.0
+            self.norm = 1.0
         else:
-            norm = 1/math.sqrt(2.0)
+            self.norm = math.sqrt(2.0)
     def move(self):
         self.pos[0] = self.pos[0] + self.machineVelocity * self.decelerationNum * self.machineVector[0]/self.norm
         self.pos[1] = self.pos[1] + self.machineVelocity * self.decelerationNum * self.machineVector[1]/self.norm
