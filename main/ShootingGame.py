@@ -23,8 +23,6 @@ ball_speed = 7 #ボールの基本速度
 ball_count = 7 #ボールの跳ね返り回数
 max_ball = 7 #画面に出せるボールの上限
 
-#速さを表す定数
-machineVelocity = 5.0
 
 
 
@@ -95,6 +93,11 @@ class EnemysList():
 
 #操作する機体の定義
 class Rocket(Image):
+    #速さを表す定数
+    machineVelocity = 5.0
+    #移動方向のベクトル
+    machineVector = [0.0,0.0]
+    norm = 1.0
     #初期位置
     def init_set(self,game):
         self.pos = Window.center #初期位置はウィンドウの中心
@@ -102,19 +105,44 @@ class Rocket(Image):
     def remove(self):
         pass
     def goTop(self):
-        #最小単位を指定してそれ
-        self.pos[1] = (machineVelocity + self.pos[1])
+        self.machineVector[1] = 1.0
+        self.setNorm()
     def goDown(self):
-        #最小単位を指定してそれ
-        self.pos[1] = (-machineVelocity + self.pos[1])
+        self.machineVector[1] = -1.0
+        self.setNorm()
     def goLeft(self):
-        self.pos[0] = self.pos[0] - machineVelocity
+        self.machineVector[0] = -1.0
+        self.setNorm()
     def goRight(self):
-        self.pos[0] = self.pos[0] + machineVelocity
-    def move(self,theta,velocity):
+        self.machineVector[0] = 1.0
+        self.setNorm()
+    def stopTop(self):
+        #-1であったときに離しても変化しないようにする 1であったときのみ0にする
+        if self.machineVector[1] == 1.0:
+            self.machineVector[1] = 0.0
+        self.setNorm()
+    def stopDown(self):
+        if self.machineVector[1] == -1.0:
+            self.machineVector[1] = 0.0
+        self.setNorm()
+    def stopLeft(self):
+        if self.machineVector[0] == -1.0:
+            self.machineVector[0] = 0.0
+        self.setNorm()
+    def stopRight(self):
+        if self.machineVector[0] == 1.0:
+            self.machineVector[0] = 0.0
+        self.setNorm()
+    def setNorm(self):
+        #vectorが全部１or-1 よってどれかに0がはいっているなら1 そうでないなら1/sqrt(2)
+        if self.machineVector[0] == 0.0 or self.machineVector[1] == 0.0:
+            norm = 1.0
+        else:
+            norm = 1/math.sqrt(2.0)
+    def move(self):
         #角度thetaを当てた時の移動
-        self.pos[0] = self.pos[0] + velocity * math.cos(theta)
-        self.pos[1] = self.pos[1] + velocity * math.sin(theta)
+        self.pos[0] = self.pos[0] + self.machineVelocity * self.machineVector[0]/self.norm
+        self.pos[1] = self.pos[1] + self.machineVelocity * self.machineVector[1]/self.norm
 
 
 class Ball(Image):
@@ -211,13 +239,26 @@ class ShootingGame(Widget):
         super(ShootingGame, self).__init__(**kwargs)
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
+        self._keyboard.bind(on_key_up=self._on_keyboard_up)
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
         self._keyboard = None
 
+    def _on_keyboard_up(self, *args):
+        key = args[1][1]
+        if key == 'w':
+            self.rocket.stopTop()
+        if key == 's':
+            self.rocket.stopDown()
+        if key == 'a':
+            self.rocket.stopLeft()
+        if key == 'd':
+            self.rocket.stopRight()
+        return True
+
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        print("コラコラコラコラ～ッ！(`o´)")
+        #print("コラコラコラコラ～ッ！(`o´)")
         if keycode[1] == 'w':
             self.rocket.goTop()
         if keycode[1] == 's':
@@ -227,6 +268,7 @@ class ShootingGame(Widget):
         if keycode[1] == 'd':
             self.rocket.goRight()
         return True
+
 
     def on_touch_down(self, touch,after = True):
         super(ShootingGame, self).on_touch_down(touch)
@@ -247,6 +289,8 @@ class ShootingGame(Widget):
         self.timer.update_time()
         self.enemy_list.update_enemys(self)
         self.ball_list.update_balls(self.rocket,self.enemy_list)
+        #ロケットをここで動かす
+        self.rocket.move()
         #fps計測用
         self.fps_ins.update()
         self.fps = self.fps_ins.get_current_fps()
