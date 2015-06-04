@@ -95,6 +95,8 @@ class EnemysList():
 class Rocket(Image):
     #速さを表す定数
     machineVelocity = 5.0
+    #減速定数
+    decelerationNum = 1.0
     #移動方向のベクトル
     machineVector = [0.0,0.0]
     norm = 1.0
@@ -116,6 +118,8 @@ class Rocket(Image):
     def goRight(self):
         self.machineVector[0] = 1.0
         self.setNorm()
+    def startDeceleration(self):
+        self.decelerationNum = 0.5
     def stopTop(self):
         #-1であったときに離しても変化しないようにする 1であったときのみ0にする
         if self.machineVector[1] == 1.0:
@@ -133,6 +137,8 @@ class Rocket(Image):
         if self.machineVector[0] == 1.0:
             self.machineVector[0] = 0.0
         self.setNorm()
+    def stopDeceleration(self):
+        self.decelerationNum = 1.0
     def setNorm(self):
         #vectorが全部１or-1 よってどれかに0がはいっているなら1 そうでないなら1/sqrt(2)
         if self.machineVector[0] == 0.0 or self.machineVector[1] == 0.0:
@@ -140,9 +146,8 @@ class Rocket(Image):
         else:
             norm = 1/math.sqrt(2.0)
     def move(self):
-        #角度thetaを当てた時の移動
-        self.pos[0] = self.pos[0] + self.machineVelocity * self.machineVector[0]/self.norm
-        self.pos[1] = self.pos[1] + self.machineVelocity * self.machineVector[1]/self.norm
+        self.pos[0] = self.pos[0] + self.machineVelocity * self.decelerationNum * self.machineVector[0]/self.norm
+        self.pos[1] = self.pos[1] + self.machineVelocity * self.decelerationNum * self.machineVector[1]/self.norm
 
 
 class Ball(Image):
@@ -247,26 +252,31 @@ class ShootingGame(Widget):
 
     def _on_keyboard_up(self, *args):
         key = args[1][1]
-        if key == 'w':
+        if key == 'w' or key == 'up':
             self.rocket.stopTop()
-        if key == 's':
+        if key == 's' or key == 'down':
             self.rocket.stopDown()
-        if key == 'a':
+        if key == 'a' or key == 'left':
             self.rocket.stopLeft()
-        if key == 'd':
+        if key == 'd' or key == 'right':
             self.rocket.stopRight()
+        if key == 'shift':
+            self.rocket.stopDeceleration()
         return True
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         #print("コラコラコラコラ～ッ！(`o´)")
-        if keycode[1] == 'w':
+        key = keycode[1]
+        if key == 'w' or key == 'up':
             self.rocket.goTop()
-        if keycode[1] == 's':
+        if key == 's' or key == 'down':
             self.rocket.goDown()
-        if keycode[1] == 'a':
+        if key == 'a' or key == 'left':
             self.rocket.goLeft()
-        if keycode[1] == 'd':
+        if key == 'd' or key == 'right':
             self.rocket.goRight()
+        if key == 'shift':
+            self.rocket.startDeceleration()
         return True
 
 
