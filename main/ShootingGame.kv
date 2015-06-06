@@ -24,9 +24,14 @@
 			size:self.size
 			source:'data/ball.png'
 
+
 <ShootingGame>:
 	timer: timer_val
 	fps:fps_val
+	button:top
+	button:down
+	button:left
+	button:right
 	Timer:
 		id:timer_val
 		text:'Timer:'+str(root.timer.timer)
@@ -35,3 +40,36 @@
 		id:fps_val
 		pos:(0,0)
 		text:'fps:'+str(root.fps)
+
+
+	Button:
+		id:top
+		text:"top"
+		size:50,50
+		pos:root.width/2-25,100
+		on_press: root.rocket.goTop()
+		on_release: root.rocket.stopTop()
+	Button:
+		id:down
+		text:"down"
+		size:50,50
+		pos:0,50
+		pos:root.width/2-25,0
+		on_press: root.rocket.goDown()
+		on_release: root.rocket.stopDown()
+	Button:
+		id:left
+		text:"left"
+		size:50,50
+		pos:0,100
+		pos:root.width/2-75,50
+		on_press: root.rocket.goLeft()
+		on_release: root.rocket.stopLeft()
+	Button:
+		id:right
+		text:"right"
+		size:50,50
+		pos:0,150
+		pos:root.width/2+25,50
+		on_press: root.rocket.goRight()
+		on_release: root.rocket.stopRight()

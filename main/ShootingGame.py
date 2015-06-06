@@ -21,7 +21,7 @@ import math
 
 ball_speed = 7 #ボールの基本速度
 ball_count = 7 #ボールの跳ね返り回数
-max_ball = 7 #画面に出せるボールの上限
+max_ball = 200 #画面に出せるボールの上限
 
 
 
@@ -313,7 +313,7 @@ class ShootingGameApp(App):
     def build(self):
         game = ShootingGame()
         game.add_obj()
-        Clock.schedule_interval(game.update, 1.0/60.0)
+        Clock.schedule_interval(game.update, 1.0/30.0)
         return game
 
 if __name__ == '__main__':
