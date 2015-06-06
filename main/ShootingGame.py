@@ -162,7 +162,7 @@ class Ball(Image):
         self.game = game
         self.rocket = rocket
         self.enemys = enemyList
-        self.pos = (rocket.pos[0], rocket.pos[1] + rocket.size[1]/2 + 2) #発射時の機体の位置はロケットの先端より少し上####
+        self.pos = (rocket.pos[0] + rocket.size[0]/2 , rocket.pos[1] + rocket.size[1] + 2)  #発射時の機体の位置はロケットの先端より少し上####
         vec = math.sqrt((position[0] - self.pos[0])  * (position[0] - self.pos[0])  + (position[1] - self.pos[1]) * (position[1] - self.pos[1]))
         ball_speedx = ball_speed * (position[0] - self.pos[0]) / vec
         ball_speedy = ball_speed * (position[1] - self.pos[1]) / vec
